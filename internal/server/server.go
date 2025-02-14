@@ -18,10 +18,10 @@ func RunServer() *fiber.App{
 		AllowCredentials: true, 
     }))    
 	routes.Setup(app)
-	port:=os.GETENV("PORT")
+	port:=os.Getenv("PORT")
 	if port == ""{
 		port = "3000"
 	}
-    log.Fatal(app.Listen(":"+port))    
+    log.Fatal(app.Listen("0.0.0.0:"+port))    
 	return app
 }
