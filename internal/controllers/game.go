@@ -8,6 +8,25 @@ import (
 	e "avantura/backend/pkg/error-patterns"
 )
 
+func AddGameToTable(c *fiber.Ctx) error{
+	var request struct{
+		GameName string `json:"game"`
+	}
+	game:=models.Game{
+		Name: request.GameName,
+	}
+	if err:=db.Database.Create(&game).Error;err!=nil{
+		c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{
+				"message":"Error add game",
+			})
+	}
+
+	return c.JSON(fiber.Map{
+        "message": "Game added successfully",
+    })
+}
+
 func AddGame(c *fiber.Ctx) error{
 	var request struct{
 		UserId   string `json:"user_id"`
@@ -53,7 +72,7 @@ func AddGame(c *fiber.Ctx) error{
 	
 
 	return c.JSON(fiber.Map{
-        "message": "Game added successfully",
+        "message": "Game added to user successfully",
     })
 }
 
