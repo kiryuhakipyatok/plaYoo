@@ -12,6 +12,7 @@ func Setup(app *fiber.App) {
 	app.Post("/api/follow", controllers.Follow)
 	app.Post("/api/unfollow", controllers.Unfollow)
 	app.Post("/api/add-game", controllers.AddGame)
+	app.Post("/api/add-game-to-table", controllers.AddGameToTable)
 	app.Post("/api/add-event/:id", controllers.AddEvent)
 	app.Post("/api/join-to-event/:id", controllers.JoinToEvent)
 	app.Post("/api/add-news/:id", controllers.AddNews)
