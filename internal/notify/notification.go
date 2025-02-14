@@ -7,13 +7,13 @@ import (
 	"strconv"
 	"time"
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/google/uuid"
+	// "github.com/google/uuid"
 	"github.com/robfig/cron/v3"
 )
 
 func CreateNotice(event models.Event,msg string) models.Notice{
 	notice:=models.Notice{
-		Id:uuid.New(),
+		Id:"notice"+event.Id,
 		EventId: event.Id,
 		Body: msg,
 	}
@@ -30,7 +30,7 @@ func sendStartNotification(event models.Event,message string){
 			log.Printf("User not found: %s", user.Id)
 		}
 		notice:=CreateNotice(event,message)
-		user.Notifications = append(user.Notifications, notice.Id.String())
+		user.Notifications = append(user.Notifications, notice.Id)
 		db.Database.Save(&user)
 		if user.ChatId!=""{
 			chatID, _ := strconv.ParseInt(user.ChatId, 10, 64)
@@ -52,7 +52,7 @@ func sendPreNotification(event models.Event,message string){
 			log.Printf("User not found: %s", user.Id)
 		}
 		notice:=CreateNotice(event,message)
-		user.Notifications = append(user.Notifications, notice.Id.String())
+		user.Notifications = append(user.Notifications, notice.Id)
 		db.Database.Save(&user)
 		log.Printf("Notification save to user %s", user.Tg)
 		if user.ChatId!=""{
@@ -106,13 +106,13 @@ func ScheduleNotify() {
             	}
 				for _,id:= range event.Members{
 					user:=models.User{}
-					uuId,_:=uuid.Parse(id)
-					if err:=db.Database.First(&user,"id=?",uuId).Error;err!=nil{
+					// uuId,_:=uuid.Parse(id)
+					if err:=db.Database.First(&user,"id=?",id).Error;err!=nil{
 						log.Printf("Ошибка при поиска пользователя: %v", err)
 					}
 					updateEvents:=make([]string,0,len(user.Events))
 					for _, e := range user.Events {
-						if e != event.Id.String() {
+						if e != event.Id {
 							updateEvents = append(updateEvents, e)
 						}
 					}

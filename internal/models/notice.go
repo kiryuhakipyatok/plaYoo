@@ -1,9 +1,9 @@
 package models
 
-import "github.com/google/uuid"
+// import "github.com/google/uuid"
 
 type Notice struct{
-	Id 				uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();" json:"notice_id"`
-	EventId 		uuid.UUID 	`gorm:"not null;type:uuid"`
+	Id 				string		`json:"notice_id"`
+	EventId 		string 		`gorm:"not null"`
 	Body 			string 		`json:"body" gorm:"not null"`
 }

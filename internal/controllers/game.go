@@ -4,7 +4,7 @@ import (
 	"avantura/backend/internal/db"
 	"avantura/backend/internal/models"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
+	// "github.com/google/uuid"
 	e "avantura/backend/pkg/error-patterns"
 )
 
@@ -17,8 +17,8 @@ func AddGame(c *fiber.Ctx) error{
 		return e.BadRequest(c,err)
 	}
 	user:=models.User{}
-	userId,_:=uuid.Parse(request.UserId)
-	if err := db.Database.First(&user,"id=?",userId).Error; err != nil {
+	//userId,_:=uuid.Parse(request.UserId)
+	if err := db.Database.First(&user,"id=?",request.UserId).Error; err != nil {
         return e.NotFound("user",err,c)
     }
 	for _,game:=range user.Games{
@@ -65,9 +65,9 @@ func DeleteGame(c *fiber.Ctx) error{
 	if err:=c.BodyParser(&request);err!=nil{
 		return e.BadRequest(c,err)
 	}
-	userIdUUID,_:=uuid.Parse(userId)
+	// userIdUUID,_:=uuid.Parse(userId)
 	user:=models.User{}
-	if err:=db.Database.First(&user,"id=?",userIdUUID).Error;err!=nil{
+	if err:=db.Database.First(&user,"id=?",userId).Error;err!=nil{
 		return e.NotFound("User",err,c)
 	}
 

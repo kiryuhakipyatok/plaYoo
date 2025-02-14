@@ -33,7 +33,7 @@ func Follow(c *fiber.Ctx) error{
     }
 
 	for _,followId:=range user.Followings{
-		if followId == follow.Id.String(){
+		if followId == follow.Id{
 			c.Status(fiber.StatusBadRequest)
 			return c.JSON(fiber.Map{
 				"message":"You alredy follow to this user",
@@ -41,8 +41,8 @@ func Follow(c *fiber.Ctx) error{
 		}
 	}
 
-	user.Followings = append(user.Followings, follow.Id.String())
-	follow.Followers = append(follow.Followers, user.Id.String())
+	user.Followings = append(user.Followings, follow.Id)
+	follow.Followers = append(follow.Followers, user.Id)
 
 	if err:=db.Database.Save(&user).Error;err!=nil{
 		c.Status(fiber.StatusInternalServerError)

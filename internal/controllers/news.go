@@ -5,7 +5,7 @@ import (
 	"avantura/backend/internal/models"
 	"time"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
+	// "github.com/google/uuid"
 	"os"
 	"fmt"
 	"path/filepath"
@@ -36,16 +36,16 @@ func AddNews(c *fiber.Ctx) error{
     }
 
 	authorId:=c.Params("id")
-	authorIdUUID,_:=uuid.Parse(authorId)
+	// authorIdUUID,_:=uuid.Parse(authorId)
 	author:=models.User{}
 	if err:=db.Database.First(&author,"id=?",authorId).Error;err!=nil{
 		return e.NotFound("Author",err,c)
 	}
 
 	news:=models.News{
-		Id:uuid.New(),
+		Id:authorId+"news",
 		AuthorName: request.AuthorName,
-		AuthorId: authorIdUUID,
+		AuthorId: authorId,
 		AuthorAvatars: author.Avatar,
 		Title: request.Title,
 		Body: request.Body,
