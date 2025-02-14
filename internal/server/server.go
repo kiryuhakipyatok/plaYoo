@@ -11,7 +11,7 @@ func RunServer() *fiber.App{
     app:=fiber.New()    
 	app.Static("pkg","../../pkg")
     app.Use(cors.New(cors.Config{        
-		AllowOrigins:     "http://localhost:3000,http://localhost:9110",
+		AllowOrigins:     "*",
         AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS,PATCH",         
 		AllowHeaders:     "Origin,Content-Type,Accept,Authorization", 
         ExposeHeaders:    "Content-Length",        
