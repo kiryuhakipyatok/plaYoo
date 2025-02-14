@@ -71,11 +71,6 @@ func GetEvents(c *fiber.Ctx) error{
 	}
 	a,_:=strconv.Atoi(request.Amount)
 	events:=[]models.Event{}
-	if a<=0{
-		if err:=db.Database.Find(&events).Error;err!=nil{
-			return e.ErrorFetching("events",c,err)
-		}
-	}
 	if err:=db.Database.Limit(a).Find(&events).Error;err!=nil{
 		return e.ErrorFetching("events",c,err)
 	}

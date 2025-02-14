@@ -99,11 +99,6 @@ func GetNews(c *fiber.Ctx) error{
 	}
 	a,_:=strconv.Atoi(request.Amount)
 	news:=[]models.News{}
-	if a<=0{
-		if err:=db.Database.Find(&news).Error;err!=nil{
-			return e.ErrorFetching("news",c,err)
-		}
-	}
 	if err:=db.Database.Limit(a).Find(&news).Error;err!=nil{
 		return e.ErrorFetching("news",c,err)
 	}

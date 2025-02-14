@@ -102,12 +102,6 @@ func ShowComments(c *fiber.Ctx) error{
 		return e.NotFound("User",err,c)
 	}
 	a,_:=strconv.Atoi(request.Amount)
-	if a<=0{
-		return c.JSON(user.Comments)
-	}
-	if a > len(user.Comments) {
-		a = len(user.Comments)
-	}
 	amountComments := user.Comments[:a]
 	return c.JSON(amountComments)
 }
