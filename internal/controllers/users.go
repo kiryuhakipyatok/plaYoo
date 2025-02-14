@@ -20,12 +20,6 @@ func GetAllUsers(c *fiber.Ctx) error{
 	}
 	a,_:=strconv.Atoi(request.Amount)
 	users:=[]models.User{}
-	if a<=0{
-		if err:=db.Database.Find(&users).Error;err!=nil{
-		return e.ErrorFetching("users",c,err)
-	}
-	
-	}
 	if err:=db.Database.Limit(a).Find(&users).Error;err!=nil{
 		return e.ErrorFetching("users",c,err)
 	}
