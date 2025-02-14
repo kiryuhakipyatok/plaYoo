@@ -12,6 +12,9 @@ func AddGameToTable(c *fiber.Ctx) error{
 	var request struct{
 		GameName string `json:"game"`
 	}
+	if err:=c.BodyParser(&request);err!=nil{
+		return e.BadRequest(c,err)
+	}
 	game:=models.Game{
 		Name: request.GameName,
 	}
