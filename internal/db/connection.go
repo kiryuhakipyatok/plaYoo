@@ -10,7 +10,7 @@ import (
 var Database *gorm.DB
 
 func Connect(){
-	dsn:="host=dpg-cunourl6l47c73dhnbug-a user=kipyatok password=oaOEuY5zuBdK3jhmaQmHXRFtiULB29Y0 dbname=avanturadb_qgbr port=5432 sslmode=disable TimeZone=Europe/Minsk"
+	dsn:="host=junction.proxy.rlwy.net user=postgres password=ZFvBKMDypzRLBbFqMHMOiRCmFvMPPLCv dbname=railway port=43543 sslmode=disable TimeZone=Europe/Minsk"
 	connection,err:= gorm.Open(postgres.Open(dsn),&gorm.Config{})
 	if err!=nil{
 		log.Printf("Error connect to database: %v", err)
