@@ -24,7 +24,7 @@ func AddEvent(c *fiber.Ctx) error{
 	minute,_:=strconv.Atoi(iventdata["minute"])
 	members:=[]string{author_id}
 	event:=models.Event{
-		Id: author_id+"event",
+		Id: author_id+"event"+iventdata["body"],
 		AuthorId: author_id,
 		Body: iventdata["body"],
 		Game:iventdata["game"],
