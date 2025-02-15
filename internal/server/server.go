@@ -5,6 +5,7 @@ import (
 	"log"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"os"
 )
 func RunServer() *fiber.App{
     app:=fiber.New()    
@@ -17,6 +18,6 @@ func RunServer() *fiber.App{
 		AllowCredentials: true, 
     }))    
 	routes.Setup(app)
-    log.Fatal(app.Listen(":9110"))    
+    log.Fatal(app.Listen(os.Getenv("PORT")))    
 	return app
 }
