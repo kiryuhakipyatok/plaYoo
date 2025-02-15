@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
+	// "github.com/google/uuid"
 	e "avantura/backend/pkg/error-patterns"
 )
 
@@ -24,7 +24,7 @@ func AddEvent(c *fiber.Ctx) error{
 	minute,_:=strconv.Atoi(iventdata["minute"])
 	members:=[]string{author_id}
 	event:=models.Event{
-		Id: uuid.New(),
+		Id: author_id+"event",
 		AuthorId: author_id,
 		Body: iventdata["body"],
 		Game:iventdata["game"],
@@ -45,7 +45,7 @@ func AddEvent(c *fiber.Ctx) error{
 	if err := db.Database.First(&game,"name=?",iventdata["game"]).Error; err != nil {
         return e.NotFound("Game",err,c)
     }
-	user.Events=append(user.Events, event.Id.String())
+	user.Events=append(user.Events, event.Id)
 	game.NumberOfEvents++
 	db.Database.Save(&user)
 	db.Database.Save(&game)
@@ -55,8 +55,8 @@ func AddEvent(c *fiber.Ctx) error{
 func GetConcreteEvent(c *fiber.Ctx) error{
 	userId:=c.Params("id")
 	user:=models.User{}
-	userIdUUID,_:=uuid.Parse(userId)
-	if err:=db.Database.First(&user,"id=?",userIdUUID).Error;err!=nil{
+	// userIdUUID,_:=uuid.Parse(userId)
+	if err:=db.Database.First(&user,"id=?",userId).Error;err!=nil{
 		return e.NotFound("User",err,c)
 	}
 	return c.JSON(user.Events)
@@ -91,13 +91,13 @@ func JoinToEvent(c *fiber.Ctx) error{
 		return e.BadRequest(c,err)
 	}
 	user:=models.User{}
-	userId,_:=uuid.Parse(request.Id)
-	if err := db.Database.First(&user,"id=?",userId).Error; err != nil {
+	// userId,_:=uuid.Parse(request.Id)
+	if err := db.Database.First(&user,"id=?",request.Id).Error; err != nil {
 		return e.NotFound("User",err,c)
     }
 	event:=models.Event{}
-	eventIdUUID,_:=uuid.Parse(eventId)
-	if err := db.Database.First(&event,"id=?",eventIdUUID).Error; err != nil {
+	// eventIdUUID,_:=uuid.Parse(eventId)
+	if err := db.Database.First(&event,"id=?",eventId).Error; err != nil {
         return e.NotFound("Event",err,c)
     }
 	event.Members = append(event.Members, request.Id)
@@ -130,8 +130,8 @@ func UnjoinFromEvent(c *fiber.Ctx) error{
 		return e.BadRequest(c,err)
 	}
 	user:=models.User{}
-	userIdUUID,_:=uuid.Parse(userId)
-	if err := db.Database.First(&user,"id=?",userIdUUID).Error; err != nil {
+	// userIdUUID,_:=uuid.Parse(userId)
+	if err := db.Database.First(&user,"id=?",userId).Error; err != nil {
         return e.NotFound("User",err,c)
     }
 	updateEvents:=make([]string,0,len(user.Events))

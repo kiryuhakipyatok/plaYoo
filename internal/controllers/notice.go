@@ -4,7 +4,7 @@ import (
 	"avantura/backend/internal/db"
 	"avantura/backend/internal/models"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
+	// "github.com/google/uuid"
 	e "avantura/backend/pkg/error-patterns"
 )
 
@@ -25,15 +25,15 @@ func DeleteNotification(c *fiber.Ctx) error{
 	if err:=c.BodyParser(&request);err!=nil{
 		return e.BadRequest(c,err)
 	}
-	userId,_:=uuid.Parse(id)
+	// userId,_:=uuid.Parse(id)
 	user:=models.User{}
-	if err:=db.Database.First(&user,"id=?",userId).Error;err!=nil{
+	if err:=db.Database.First(&user,"id=?",id).Error;err!=nil{
 		return e.NotFound("User",err,c)
 	}
-	noticeId,_:=uuid.Parse(request.Id)
+	// noticeId,_:=uuid.Parse(request.Id)
 	updateNotifications:=make([]string,0,len(user.Notifications))
 	for _,n:=range user.Notifications{
-		if n!=noticeId.String(){
+		if n!=request.Id{
 			updateNotifications = append(updateNotifications, n)
 		}
 	}
@@ -45,7 +45,7 @@ func DeleteNotification(c *fiber.Ctx) error{
 		})
 	}
 	notice:=models.Notice{}
-	if err:=db.Database.Delete(&notice,"id=?",noticeId).Error;err!=nil{
+	if err:=db.Database.Delete(&notice,"id=?",request.Id).Error;err!=nil{
 		c.Status(fiber.StatusNotFound)
 		return c.JSON(fiber.Map{
 			"error":"Error deleting notice",
