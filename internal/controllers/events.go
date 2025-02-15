@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 	"github.com/gofiber/fiber/v2"
-	// "github.com/google/uuid"
+	"github.com/google/uuid"
 	e "avantura/backend/pkg/error-patterns"
 )
 
@@ -16,6 +16,10 @@ func AddEvent(c *fiber.Ctx) error{
 		return e.BadRequest(c,err)
 	}
 	author_id:=c.Params("id")
+	authorid,err:=uuid.Parse(author_id)
+	if err != nil {
+		return e.BadUUID(c,err)
+	}
 	user:=models.User{}
 	if err:=db.Database.First(&user,"id=?",author_id).Error;err!=nil{
 		return e.NotFound("User",err,c)
@@ -24,8 +28,8 @@ func AddEvent(c *fiber.Ctx) error{
 	minute,_:=strconv.Atoi(iventdata["minute"])
 	members:=[]string{author_id}
 	event:=models.Event{
-		Id: author_id+"event",
-		AuthorId: author_id,
+		Id: uuid.New(),
+		AuthorId: authorid,
 		Body: iventdata["body"],
 		Game:iventdata["game"],
 		Max: max,
@@ -45,7 +49,7 @@ func AddEvent(c *fiber.Ctx) error{
 	if err := db.Database.First(&game,"name=?",iventdata["game"]).Error; err != nil {
         return e.NotFound("Game",err,c)
     }
-	user.Events=append(user.Events, event.Id)
+	user.Events=append(user.Events, event.Id.String())
 	game.NumberOfEvents++
 	db.Database.Save(&user)
 	db.Database.Save(&game)
@@ -55,7 +59,6 @@ func AddEvent(c *fiber.Ctx) error{
 func GetConcreteEvent(c *fiber.Ctx) error{
 	userId:=c.Params("id")
 	user:=models.User{}
-	// userIdUUID,_:=uuid.Parse(userId)
 	if err:=db.Database.First(&user,"id=?",userId).Error;err!=nil{
 		return e.NotFound("User",err,c)
 	}

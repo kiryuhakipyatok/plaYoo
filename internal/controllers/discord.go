@@ -4,7 +4,6 @@ import (
 	"avantura/backend/internal/db"
 	"avantura/backend/internal/models"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	e "avantura/backend/pkg/error-patterns"
 )
 
@@ -17,8 +16,7 @@ func RecordDiscord(c *fiber.Ctx) error {
 		return e.BadRequest(c,err)
 	}
 	user:=models.User{}
-	userIdUUID,_:=uuid.Parse(request.UserId)
-	if err:=db.Database.First(&user,"id=?",userIdUUID).Error;err!=nil{
+	if err:=db.Database.First(&user,"id=?",request.UserId).Error;err!=nil{
 		return e.NotFound("User",err,c)
 	}
 	user.Discord = request.Discord
