@@ -2,9 +2,9 @@ package db
 
 import (
 	"avantura/backend/internal/models"
-	"fmt"
+	
 	"log"
-	"os"
+	
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -13,14 +13,14 @@ import (
 var Database *gorm.DB
 
 func Connect(){
-	var (
-		database   = os.Getenv("DB_DATABASE_RLW")
-		password   = os.Getenv("DB_PASSWORD_RLW")
-		username   = os.Getenv("DB_USERNAME_RLW")
-		port       = os.Getenv("DB_PORT_RLW")
-		host       = os.Getenv("DB_HOST_RLW")
-	)
-	dsn:=fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Europe/Minsk",host,username,password,database,port)
+	// var (
+	// 	database   = os.Getenv("DB_DATABASE_RLW")
+	// 	password   = os.Getenv("DB_PASSWORD_RLW")
+	// 	username   = os.Getenv("DB_USERNAME_RLW")
+	// 	port       = os.Getenv("DB_PORT_RLW")
+	// 	host       = os.Getenv("DB_HOST_RLW")
+	// )
+	dsn:="host=junction.proxy.rlwy.net user=postgres password=ZFvBKMDypzRLBbFqMHMOiRCmFvMPPLCv dbname=railway port=43543 sslmode=disable TimeZone=Europe/Minsk"
 	connection,err:= gorm.Open(postgres.Open(dsn),&gorm.Config{})
 	if err!=nil{
 		log.Printf("Error connect to database: %v", err)
