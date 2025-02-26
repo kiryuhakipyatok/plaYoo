@@ -15,7 +15,7 @@ func RunServer() *fiber.App{
         AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS,PATCH",         
 		AllowHeaders:     "Origin,Content-Type,Accept,Authorization", 
         ExposeHeaders:    "Content-Length",        
-		AllowCredentials: false, 
+		AllowCredentials: true, 
     }))    
 	routes.Setup(app)
 	port:=os.Getenv("PORT")
