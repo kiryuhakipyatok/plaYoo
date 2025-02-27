@@ -37,7 +37,7 @@ func Run() {
 			}
 		}
 	}() 
-	defer redis.Rdb.Close()
+	// defer redis.Rdb.Close()
 	go notify.CreateBot()
 	// go notify.ScheduleNotify()
 	app:=server.RunServer()
