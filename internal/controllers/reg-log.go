@@ -30,11 +30,18 @@ func Register(c *fiber.Ctx) error{
 		Tg: userdata["tg"],
 		Password: password,
 	}
-	if err:=postgres.Database.Create(&user).Error;err!=nil{
-		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(fiber.Map{
-			"error":"Error creating user" + err.Error(),
-		})
+	if err:=postgres.Database.First(&user,"login=? and tg = ?",userdata["login"],userdata["tg"]);err!=nil{
+		if err:=postgres.Database.Create(&user).Error;err!=nil{
+			c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{
+				"error":"Error creating user" + err.Error(),
+			})
+		}
+	}else{
+		c.Status(fiber.StatusBadRequest)
+			return c.JSON(fiber.Map{
+				"error":"User with this login or tg alredy exist",
+			})
 	}
 
 	return c.JSON(user)
