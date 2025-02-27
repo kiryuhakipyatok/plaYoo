@@ -92,7 +92,7 @@ func AddComment(c *fiber.Ctx) error{
 func ShowComments(c *fiber.Ctx) error{
 	id :=c.Query("id")
 	amount:=c.Query("amount")
-	if amount==""{
+	if amount=="" && id ==""{
 		var request struct{
 			UserId string `json:"user_id"`
 			Amount string `json:"amount"`
