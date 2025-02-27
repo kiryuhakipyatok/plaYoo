@@ -91,13 +91,18 @@ func AddNews(c *fiber.Ctx) error{
 
 
 func GetNews(c *fiber.Ctx) error{
-	// var request struct{
-	// 	Amount string `json:"amount"`
-	// }
-	amount := c.Query("amount")
-	// if err:=c.BodyParser(&request);err!=nil{
-	// 	return e.BadRequest(c,err)
-	// }
+	var request struct{
+		Amount string `json:"amount"`
+	}
+	if err:=c.BodyParser(&request);err!=nil{
+		return e.BadRequest(c,err)
+	}
+	var amount string
+	if request.Amount==""{
+		amount=c.Query("amount")
+	}else{
+		amount  = request.Amount
+	}
 	amountI,_:=strconv.Atoi(amount)
 	//a,_:=strconv.Atoi(request.Amount)
 	news:=[]models.News{}
