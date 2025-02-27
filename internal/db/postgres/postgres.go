@@ -12,7 +12,7 @@ import (
 
 var Database *gorm.DB
 
-func Connect(){
+func ConnectToPostgres(){
 	// var (
 	// 	database   = os.Getenv("DB_DATABASE_RLW")
 	// 	password   = os.Getenv("DB_PASSWORD_RLW")

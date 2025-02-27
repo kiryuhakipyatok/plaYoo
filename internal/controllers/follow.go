@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"avantura/backend/internal/db"
+	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
 	"github.com/gofiber/fiber/v2"
 	e "avantura/backend/pkg/error-patterns"
@@ -16,7 +16,7 @@ func Follow(c *fiber.Ctx) error{
 		return e.BadRequest(c,err)
 	}
 	user:=models.User{}
-	if err := db.Database.First(&user,"id=?",request.UserId).Error; err != nil {
+	if err := postgres.Database.First(&user,"id=?",request.UserId).Error; err != nil {
 		return e.NotFound("User",err,c)
     }
 	if user.Login == request.FollowLogin{
@@ -28,7 +28,7 @@ func Follow(c *fiber.Ctx) error{
 
 	follow:=models.User{}
 
-	if err := db.Database.First(&follow,"login=?",request.FollowLogin).Error; err != nil {
+	if err := postgres.Database.First(&follow,"login=?",request.FollowLogin).Error; err != nil {
         return e.NotFound("Follow",err,c)
     }
 
@@ -44,14 +44,14 @@ func Follow(c *fiber.Ctx) error{
 	user.Followings = append(user.Followings, follow.Id)
 	follow.Followers = append(follow.Followers, user.Id)
 
-	if err:=db.Database.Save(&user).Error;err!=nil{
+	if err:=postgres.Database.Save(&user).Error;err!=nil{
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error":"Failed to follow user",
 		})
 	}
 
-	if err:=db.Database.Save(&follow).Error;err!=nil{
+	if err:=postgres.Database.Save(&follow).Error;err!=nil{
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error":"Failed to add user to followers",
@@ -72,11 +72,11 @@ func Unfollow(c *fiber.Ctx) error{
 		return e.BadRequest(c,err)
 	}
 	user:=models.User{}
-	if err := db.Database.First(&user,"id=?",request.UserId).Error; err != nil {
+	if err := postgres.Database.First(&user,"id=?",request.UserId).Error; err != nil {
 		return e.NotFound("User",err,c)
     }
 	follow:=models.User{}
-	if err := db.Database.First(&follow,"id=?",request.FollowId).Error; err != nil {
+	if err := postgres.Database.First(&follow,"id=?",request.FollowId).Error; err != nil {
 		return e.NotFound("Follow",err,c)
     }
 	updateFollowings:=make([]string,0,len(user.Followings))
@@ -103,13 +103,13 @@ func Unfollow(c *fiber.Ctx) error{
 	}
 	
 	
-	if err:=db.Database.Save(&user).Error;err!=nil{
+	if err:=postgres.Database.Save(&user).Error;err!=nil{
 		c.Status(fiber.StatusNotFound)
 		return c.JSON(fiber.Map{
 			"error":"Failed to update user followings",
 		})
 	}
-	if err:=db.Database.Save(&follow).Error;err!=nil{
+	if err:=postgres.Database.Save(&follow).Error;err!=nil{
 		c.Status(fiber.StatusNotFound)
 		return c.JSON(fiber.Map{
 			"error":"Failed to update follow followers",

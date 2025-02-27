@@ -1,7 +1,7 @@
 package controllers
 
 import(
-	"avantura/backend/internal/db"
+	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
 	"github.com/gofiber/fiber/v2"
 	// "github.com/google/uuid"
@@ -33,7 +33,7 @@ func UploadAvatar(c *fiber.Ctx) error{
 	
     
 	user := models.User{}
-	if err:=db.Database.First(&user,"id=?",userId).Error;err!=nil{
+	if err:=postgres.Database.First(&user,"id=?",userId).Error;err!=nil{
 		return e.NotFound("User",err,c)
 	}
     fileName := fmt.Sprintf("%s-avatar%s", user.Login,filepath.Ext(file.Filename))
@@ -56,7 +56,7 @@ func UploadAvatar(c *fiber.Ctx) error{
 	fileURL:=fmt.Sprintf("http://localhost:9110/pkg/avatars/%s",fileName)
 
 	user.Avatar = fileURL
-	if err := db.Database.Save(&user).Error; err != nil {
+	if err := postgres.Database.Save(&user).Error; err != nil {
 		c.Status(fiber.StatusInternalServerError)
         return c.JSON(fiber.Map{
             "error": "Failed to save user",
@@ -73,7 +73,7 @@ func DeleteAvatar(c *fiber.Ctx) error{
 	userId:=c.Params("id")
 	// userIdUUID,_:=uuid.Parse(userId)
 	user:=models.User{}
-	if err:=db.Database.First(&user,"id=?",userId).Error;err!=nil{
+	if err:=postgres.Database.First(&user,"id=?",userId).Error;err!=nil{
 		return e.NotFound("User",err,c)	
 	}
 	if user.Avatar == "" {
@@ -89,7 +89,7 @@ func DeleteAvatar(c *fiber.Ctx) error{
 		})
 	}
 	user.Avatar = ""
-	db.Database.Save(&user)
+	postgres.Database.Save(&user)
 	return c.JSON(fiber.Map{
         "message": "Avatar deleted successfully",
     })

@@ -1,7 +1,7 @@
 package notify
 
 import (
-	"avantura/backend/internal/db"
+	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
 	"log"
 	"strconv"
@@ -17,7 +17,7 @@ func CreateNotice(event models.Event,msg string) models.Notice{
 		EventId: event.Id,
 		Body: msg,
 	}
-	if err:=db.Database.Create(&notice).Error;err!=nil{
+	if err:=postgres.Database.Create(&notice).Error;err!=nil{
 		log.Printf("Error to create notice")
 	}
 	return notice
@@ -26,12 +26,12 @@ func CreateNotice(event models.Event,msg string) models.Notice{
 func sendStartNotification(event models.Event,message string){
 	for _,id:=range event.Members{
 		user:=models.User{}
-		if err:=db.Database.Find(&user,"id=?",id).Error;err!=nil{
+		if err:=postgres.Database.Find(&user,"id=?",id).Error;err!=nil{
 			log.Printf("User not found: %s", user.Id)
 		}
 		notice:=CreateNotice(event,message)
 		user.Notifications = append(user.Notifications, notice.Id)
-		db.Database.Save(&user)
+		postgres.Database.Save(&user)
 		if user.ChatId!=""{
 			chatID, _ := strconv.ParseInt(user.ChatId, 10, 64)
 			msg:=tgbotapi.NewMessage(chatID,message)
@@ -48,12 +48,12 @@ func sendPreNotification(event models.Event,message string){
 	// message:="Событие " + event.Body + " начнется через 10 минут!"
 	for _,id:=range event.Members{
 		user:=models.User{}
-		if err:=db.Database.Find(&user,"id=?",id).Error;err!=nil{
+		if err:=postgres.Database.Find(&user,"id=?",id).Error;err!=nil{
 			log.Printf("User not found: %s", user.Id)
 		}
 		notice:=CreateNotice(event,message)
 		user.Notifications = append(user.Notifications, notice.Id)
-		db.Database.Save(&user)
+		postgres.Database.Save(&user)
 		log.Printf("Notification save to user %s", user.Tg)
 		if user.ChatId!=""{
 			chatID, _ := strconv.ParseInt(user.ChatId, 10, 64)
@@ -73,7 +73,7 @@ func ScheduleNotify() {
         now := time.Now()
         tenMin := now.Add(10 * time.Minute).Add(30 * time.Second)
         var upcomingEvents []models.Event
-        if err := db.Database.Where("time <= ?", tenMin).Find(&upcomingEvents).Error; err != nil {
+        if err := postgres.Database.Where("time <= ?", tenMin).Find(&upcomingEvents).Error; err != nil {
             log.Printf("Ошибка при получении предстоящих событий: %v", err)
             return
         }
@@ -83,7 +83,7 @@ func ScheduleNotify() {
 				sendPreNotification(event,premsg)
 				log.Printf("Уведомление о предстоящем событии %v отправлено в %v", event.Body, time.Now())
 				event.NotifiedPre = true
-				if err:=db.Database.Save(&event).Error;err!=nil{
+				if err:=postgres.Database.Save(&event).Error;err!=nil{
 					log.Printf("Ошибка при получении предстоящих событий: %v", err)
 					return
 				}
@@ -91,7 +91,7 @@ func ScheduleNotify() {
         }
 
         var events []models.Event
-        if err := db.Database.Where("time <= ?", now.Add(1 * time.Minute).Add(30*time.Second)).Find(&events).Error; err != nil {
+        if err := postgres.Database.Where("time <= ?", now.Add(1 * time.Minute).Add(30*time.Second)).Find(&events).Error; err != nil {
             log.Printf("Ошибка при получении текущих событий: %v", err)
             return
         }
@@ -101,13 +101,13 @@ func ScheduleNotify() {
 			sendStartNotification(event,startmsg)
 				log.Printf("Уведомление о начале события %v отправлено в %v", event.Body, time.Now())
 				
-            	if err := db.Database.Delete(&event).Error; err != nil {
+            	if err := postgres.Database.Delete(&event).Error; err != nil {
                 log.Printf("Ошибка при удалении события: %v", err)
             	}
 				for _,id:= range event.Members{
 					user:=models.User{}
 					// uuId,_:=uuid.Parse(id)
-					if err:=db.Database.First(&user,"id=?",id).Error;err!=nil{
+					if err:=postgres.Database.First(&user,"id=?",id).Error;err!=nil{
 						log.Printf("Ошибка при поиска пользователя: %v", err)
 					}
 					updateEvents:=make([]string,0,len(user.Events))
@@ -117,7 +117,7 @@ func ScheduleNotify() {
 						}
 					}
 					user.Events = updateEvents
-					db.Database.Save(&user)
+					postgres.Database.Save(&user)
 				}
         }
     })

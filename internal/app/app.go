@@ -1,7 +1,8 @@
 package app
 
 import (
-	"avantura/backend/internal/db"
+	"avantura/backend/internal/db/postgres"
+	"avantura/backend/internal/db/redis"
 	"avantura/backend/internal/notify"
 	"avantura/backend/internal/server"
 	"log"
@@ -11,14 +12,14 @@ import (
 	"time"
 )
 func Run() {
-	if err:=db.ConnectToPostgres();err!=nil{
+	if err:=postgres.ConnectToPostgres();err!=nil{
 		log.Fatalf("Error to connenct to Postgres: %v",err)
 	}
 	errRedis:=redis.ConnectToRedis()
 	if errRedis!=nil{
 		log.Printf("Error to connenct to Redis: %v",errRedis)
 	}
-	closeDB,err:=db.Database.DB()
+	closeDB,err:=postgres.Database.DB()
 	if err!=nil{
 		log.Fatalf("Failed to get DB: %v", err)
 	}
@@ -37,8 +38,8 @@ func Run() {
 		}
 	}() 
 	//defer redis.Rdb.Close()
-	//go notify.CreateBot()
-	//go notify.ScheduleNotify()
+	go notify.CreateBot()
+	go notify.ScheduleNotify()
 	app:=server.RunServer()
 	quit:=make(chan os.Signal,1)
 	signal.Notify(quit,syscall.SIGINT,syscall.SIGTERM)

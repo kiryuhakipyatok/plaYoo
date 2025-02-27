@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"avantura/backend/internal/db"
+	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
 	e "avantura/backend/pkg/error-patterns"
 	"strconv"
@@ -18,7 +18,7 @@ func AddComment(c *fiber.Ctx) error{
 	authorId:=commentdata["author_id"]	
 
 	author:=models.User{}
-	if err:=db.Database.First(&author,"id=?",authorId).Error;err!=nil{
+	if err:=postgres.Database.First(&author,"id=?",authorId).Error;err!=nil{
 		return e.NotFound("Author",err,c)
 	}
 	// authorIdUUID,err:=uuid.Parse(authorId)
@@ -42,32 +42,32 @@ func AddComment(c *fiber.Ctx) error{
 		// }
 		comment.Receiver = userId
 		user:=models.User{}
-		if err:=db.Database.First(&user,"id=?",userId).Error;err!=nil{
+		if err:=postgres.Database.First(&user,"id=?",userId).Error;err!=nil{
 			return e.NotFound("User",err,c)
 		}
 
 		user.Comments = append(user.Comments, comment.Id)
-		db.Database.Save(&user)
+		postgres.Database.Save(&user)
 	}else if eventId,ok:=commentdata["event_id"];ok && eventId!=""{
 		// id,_:=uuid.Parse(eventId)
 		comment.Receiver = eventId
 		event:=models.Event{}
-		if err:=db.Database.First(&event,"id=?",eventId).Error;err!=nil{
+		if err:=postgres.Database.First(&event,"id=?",eventId).Error;err!=nil{
 			return e.NotFound("Event",err,c)
 		}
 
 		event.Comments = append(event.Comments, comment.Id)
-		db.Database.Save(&event)
+		postgres.Database.Save(&event)
 	}else if newsId,ok:=commentdata["news_id"];ok && newsId!=""{
 		// id,_:=uuid.Parse(newsId)
 		comment.Receiver = newsId
 		news:=models.News{}
-		if err:=db.Database.First(&news,"id=?",newsId).Error;err!=nil{
+		if err:=postgres.Database.First(&news,"id=?",newsId).Error;err!=nil{
 			return e.NotFound("News",err,c)
 		}
 
 		news.Comments = append(news.Comments, comment.Id)
-		db.Database.Save(&news)
+		postgres.Database.Save(&news)
 	}else{
 		// return e.NotFound("Receiver",err,c)
 		c.Status(fiber.StatusNotFound)
@@ -77,7 +77,7 @@ func AddComment(c *fiber.Ctx) error{
 	}
 	
 	
-	if err:=db.Database.Create(&comment).Error;err!=nil{
+	if err:=postgres.Database.Create(&comment).Error;err!=nil{
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Error creating comment",
@@ -98,7 +98,7 @@ func ShowComments(c *fiber.Ctx) error{
 		return e.BadRequest(c,err)
 	}
 	user:=models.User{}
-	if err:=db.Database.First(&user,"id=?",id).Error;err!=nil{
+	if err:=postgres.Database.First(&user,"id=?",id).Error;err!=nil{
 		return e.NotFound("User",err,c)
 	}
 	a,_:=strconv.Atoi(request.Amount)

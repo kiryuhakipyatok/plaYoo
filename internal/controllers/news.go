@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"avantura/backend/internal/db"
+	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
 	"time"
 	"github.com/gofiber/fiber/v2"
@@ -38,7 +38,7 @@ func AddNews(c *fiber.Ctx) error{
 	authorId:=c.Params("id")
 	// authorIdUUID,_:=uuid.Parse(authorId)
 	author:=models.User{}
-	if err:=db.Database.First(&author,"id=?",authorId).Error;err!=nil{
+	if err:=postgres.Database.First(&author,"id=?",authorId).Error;err!=nil{
 		return e.NotFound("Author",err,c)
 	}
 
@@ -79,7 +79,7 @@ func AddNews(c *fiber.Ctx) error{
     }
 	fileURL:=fmt.Sprintf("http://localhost:9110/pkg/news_picture/%s",fileName)
 	news.Picture = fileURL
-	if err:=db.Database.Create(&news).Error;err!=nil{
+	if err:=postgres.Database.Create(&news).Error;err!=nil{
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error": "Error creating news",
@@ -101,10 +101,10 @@ func GetNews(c *fiber.Ctx) error{
 	amountI,_:=strconv.Atoi(amount)
 	//a,_:=strconv.Atoi(request.Amount)
 	news:=[]models.News{}
-	// if err:=db.Database.Limit(a).Find(&news).Error;err!=nil{
+	// if err:=postgres.Database.Limit(a).Find(&news).Error;err!=nil{
 	// 	return e.ErrorFetching("news",c,err)
 	// }
-	if err:=db.Database.Limit(amountI).Find(&news).Error;err!=nil{
+	if err:=postgres.Database.Limit(amountI).Find(&news).Error;err!=nil{
 		return e.ErrorFetching("news",c,err)
 	}
 	return c.JSON(news)
@@ -114,7 +114,7 @@ func GetNews(c *fiber.Ctx) error{
 func GetConcreteNews(c *fiber.Ctx) error{
 	id:=c.Params("id")
 	news:=models.News{}
-	if err:=db.Database.Find(&news,"id=?",id).Error;err!=nil{
+	if err:=postgres.Database.Find(&news,"id=?",id).Error;err!=nil{
 		return e.ErrorFetching("news",c,err)
 	}
 	return c.JSON(news)

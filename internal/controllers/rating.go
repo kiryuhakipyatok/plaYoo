@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"avantura/backend/internal/db"
+	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
 	"math"
 	"github.com/gofiber/fiber/v2"
@@ -17,14 +17,14 @@ func EditRating(c *fiber.Ctx) error{
 		return e.BadRequest(c,err)
 	}
 	user:=models.User{}
-	if err:=db.Database.First(&user,"id=?",userId).Error;err!=nil{
+	if err:=postgres.Database.First(&user,"id=?",userId).Error;err!=nil{
 		return e.NotFound("User",err,c)
 	}
 	user.NumberOfRatings++
 	user.TotalRating += request.Stars
 	averageRating := float64(user.TotalRating) / float64(user.NumberOfRatings)
 	user.Rating = math.Round(averageRating*2)/2
-	if err:=db.Database.Save(&user).Error;err!=nil{
+	if err:=postgres.Database.Save(&user).Error;err!=nil{
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error":"Failed to save changes",

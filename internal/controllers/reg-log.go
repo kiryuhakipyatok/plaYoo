@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"avantura/backend/internal/db"
+	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
 	"time"
 	"github.com/gofiber/fiber/v2"
@@ -30,7 +30,7 @@ func Register(c *fiber.Ctx) error{
 		Tg: userdata["tg"],
 		Password: password,
 	}
-	if err:=db.Database.Create(&user).Error;err!=nil{
+	if err:=postgres.Database.Create(&user).Error;err!=nil{
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error":"Error creating user" + err.Error(),
@@ -49,7 +49,7 @@ func Login(c *fiber.Ctx) error{
 	}
 	
 	user:=models.User{}
-	if err:=db.Database.First(&user,"login=?",userdata["login"]).Error;err!=nil{
+	if err:=postgres.Database.First(&user,"login=?",userdata["login"]).Error;err!=nil{
 		return e.NotFound("User",err,c)
 	}
 

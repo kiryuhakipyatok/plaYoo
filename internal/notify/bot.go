@@ -1,7 +1,7 @@
 package notify
 
 import (
-	"avantura/backend/internal/db"
+	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
 	"log"
 	"sync"
@@ -23,7 +23,7 @@ func CreateBot() {
 	log.Printf("Authorized on bot %s", Bot.Self.UserName)
 
 	go listenForUpdates()
-	ScheduleNotify();
+	// ScheduleNotify();
 }
 
 func listenForUpdates() {
@@ -44,7 +44,7 @@ func handleMessage(update tgbotapi.Update) {
 	text := update.Message.Text
 
 	user := models.User{}
-	if err := db.Database.Find(&user, "tg=?", username).Error; err != nil {
+	if err := postgres.Database.Find(&user, "tg=?", username).Error; err != nil {
 		log.Printf("Error finding user: %v", err)
 		return
 	}

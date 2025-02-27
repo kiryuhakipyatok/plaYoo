@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"avantura/backend/internal/db"
+	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
 	"github.com/gofiber/fiber/v2"
 	// "github.com/google/uuid"
@@ -18,7 +18,7 @@ func AddGameToTable(c *fiber.Ctx) error{
 	game:=models.Game{
 		Name: request.GameName,
 	}
-	if err:=db.Database.Create(&game).Error;err!=nil{
+	if err:=postgres.Database.Create(&game).Error;err!=nil{
 		c.Status(fiber.StatusInternalServerError)
 			return c.JSON(fiber.Map{
 				"message":"Error add game",
@@ -40,7 +40,7 @@ func AddGame(c *fiber.Ctx) error{
 	}
 	user:=models.User{}
 	//userId,_:=uuid.Parse(request.UserId)
-	if err := db.Database.First(&user,"id=?",request.UserId).Error; err != nil {
+	if err := postgres.Database.First(&user,"id=?",request.UserId).Error; err != nil {
         return e.NotFound("user",err,c)
     }
 	for _,game:=range user.Games{
@@ -52,21 +52,21 @@ func AddGame(c *fiber.Ctx) error{
 		}
 	}
 	game:=models.Game{}
-	if err := db.Database.First(&game,"name=?",request.GameName).Error; err != nil {
+	if err := postgres.Database.First(&game,"name=?",request.GameName).Error; err != nil {
         c.Status(fiber.StatusNotFound)
 		return c.JSON(fiber.Map{
 			"error": "Game not found",
 		})
     }
 	user.Games=append(user.Games, request.GameName)
-	if err:=db.Database.Save(&user).Error;err!=nil{
+	if err:=postgres.Database.Save(&user).Error;err!=nil{
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error":"Failed to add game",
 		})
 	}
 	game.NumberOfPlayers++
-	if err:=db.Database.Save(&game).Error;err!=nil{
+	if err:=postgres.Database.Save(&game).Error;err!=nil{
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error":"Failed to update game",
@@ -89,7 +89,7 @@ func DeleteGame(c *fiber.Ctx) error{
 	}
 	// userIdUUID,_:=uuid.Parse(userId)
 	user:=models.User{}
-	if err:=db.Database.First(&user,"id=?",userId).Error;err!=nil{
+	if err:=postgres.Database.First(&user,"id=?",userId).Error;err!=nil{
 		return e.NotFound("User",err,c)
 	}
 
@@ -100,7 +100,7 @@ func DeleteGame(c *fiber.Ctx) error{
 		}
 	}
 	user.Games = updateGames
-	if err:=db.Database.Save(&user).Error;err!=nil{
+	if err:=postgres.Database.Save(&user).Error;err!=nil{
 		c.Status(fiber.StatusNotFound)
 		return c.JSON(fiber.Map{
 			"error":"Failed to update user games",
@@ -114,7 +114,7 @@ func DeleteGame(c *fiber.Ctx) error{
 
 func GetAllGames(c *fiber.Ctx) error{
 	games:=[]models.Game{}
-	if err:=db.Database.Find(&games).Error;err!=nil{
+	if err:=postgres.Database.Find(&games).Error;err!=nil{
 		return e.ErrorFetching("games",c,err)
 	}
 	return c.JSON(games)
@@ -124,7 +124,7 @@ func GetAllGames(c *fiber.Ctx) error{
 func GetConcreteGame(c *fiber.Ctx) error{
 	searchGame:=c.Params("name")
 	game:=models.Game{}
-	if err := db.Database.First(&game,"name=?",searchGame).Error; err != nil {
+	if err := postgres.Database.First(&game,"name=?",searchGame).Error; err != nil {
         return e.NotFound("Game",err,c)
     }	
 	return c.JSON(game)

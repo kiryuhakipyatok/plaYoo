@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"avantura/backend/internal/db"
+	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -18,11 +18,11 @@ func RecordDiscord(c *fiber.Ctx) error {
 	}
 	user:=models.User{}
 	userIdUUID,_:=uuid.Parse(request.UserId)
-	if err:=db.Database.First(&user,"id=?",userIdUUID).Error;err!=nil{
+	if err:=postgres.Database.First(&user,"id=?",userIdUUID).Error;err!=nil{
 		return e.NotFound("User",err,c)
 	}
 	user.Discord = request.Discord
-	if err:=db.Database.Save(&user).Error;err!=nil{
+	if err:=postgres.Database.Save(&user).Error;err!=nil{
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"error":"Error save changes",

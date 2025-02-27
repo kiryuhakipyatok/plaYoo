@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"avantura/backend/internal/db"
+	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
 	"avantura/backend/pkg/constants"
 	e "avantura/backend/pkg/error-patterns"
@@ -20,7 +20,7 @@ func GetAllUsers(c *fiber.Ctx) error{
 	}
 	a,_:=strconv.Atoi(request.Amount)
 	users:=[]models.User{}
-	if err:=db.Database.Limit(a).Find(&users).Error;err!=nil{
+	if err:=postgres.Database.Limit(a).Find(&users).Error;err!=nil{
 		return e.ErrorFetching("users",c,err)
 	}
 	return c.JSON(users)
@@ -29,7 +29,7 @@ func GetAllUsers(c *fiber.Ctx) error{
 func GetConcreteUser(c *fiber.Ctx) error{
 	searchUserId:=c.Params("id")
 	user:=models.User{}
-	if err := db.Database.First(&user,"id=?",searchUserId).Error; err != nil {
+	if err := postgres.Database.First(&user,"id=?",searchUserId).Error; err != nil {
        return e.NotFound("User",err,c)
     }	
 	return c.JSON(user)
@@ -49,6 +49,6 @@ func User(c *fiber.Ctx) error{
 	}
 	claims:=token.Claims.(*jwt.StandardClaims)
 	user:=models.User{}
-	db.Database.Where("id=?",claims.Issuer).First(&user)
+	postgres.Database.Where("id=?",claims.Issuer).First(&user)
 	return c.JSON(user)
 }
