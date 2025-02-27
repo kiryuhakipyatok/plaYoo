@@ -58,8 +58,8 @@ func AddEvent(c *fiber.Ctx) error{
 		}
 		ttl:=time.Minute*time.Duration(minute)
 		if redis.Rdb!=nil{
-			if err:=redis.Rdb.Set(redis.Ctx,event.Id,eventData,ttl);err!=nil{
-				return err.Err()
+			if err:=redis.Rdb.Set(redis.Ctx,event.Id,eventData,ttl).Err();err!=nil{
+				return err
 			}
 		}else{
 			log.Printf("Redis is not connected")

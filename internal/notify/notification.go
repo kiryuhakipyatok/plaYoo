@@ -18,7 +18,7 @@ func CreateNotice(event models.Event,msg string) models.Notice{
 		Body: msg,
 	}
 	if err:=postgres.Database.Create(&notice).Error;err!=nil{
-		log.Printf("Error to create notice")
+		log.Printf("Error to create notice" + err.Error())
 	}
 	return notice
 }
