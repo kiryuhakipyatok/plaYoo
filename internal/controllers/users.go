@@ -12,15 +12,19 @@ import (
 )
 
 func GetAllUsers(c *fiber.Ctx) error{
-	var request struct{
-		Amount string `json:"amount"`
+	amount:=c.Query("amount")
+	if amount==""{
+		var request struct{
+			Amount string `json:"amount"`
+		}
+		if err:=c.BodyParser(&request);err!=nil{
+			return e.BadRequest(c,err)
+		}
+		amount = request.Amount
 	}
-	if err:=c.BodyParser(&request);err!=nil{
-		return e.BadRequest(c,err)
-	}
-	a,_:=strconv.Atoi(request.Amount)
+	amountI,_:=strconv.Atoi(amount)
 	users:=[]models.User{}
-	if err:=postgres.Database.Limit(a).Find(&users).Error;err!=nil{
+	if err:=postgres.Database.Limit(amountI).Find(&users).Error;err!=nil{
 		return e.ErrorFetching("users",c,err)
 	}
 	return c.JSON(users)

@@ -90,18 +90,24 @@ func AddComment(c *fiber.Ctx) error{
 
 
 func ShowComments(c *fiber.Ctx) error{
-	id:=c.Params("id")
-	var request struct{
-		Amount string `json:"amount"`
+	id :=c.Query("id")
+	amount:=c.Query("amount")
+	if amount==""{
+		var request struct{
+			UserId string `json:"user_id"`
+			Amount string `json:"amount"`
+		}
+		if err:=c.BodyParser(&request);err!=nil{
+			return e.BadRequest(c,err)
+		}
+		amount = request.Amount
+		id = request.UserId
 	}
-	if err:=c.BodyParser(&request);err!=nil{
-		return e.BadRequest(c,err)
-	}
+	amountI,_:=strconv.Atoi(amount)
 	user:=models.User{}
 	if err:=postgres.Database.First(&user,"id=?",id).Error;err!=nil{
 		return e.NotFound("User",err,c)
 	}
-	a,_:=strconv.Atoi(request.Amount)
-	amountComments := user.Comments[:a]
+	amountComments := user.Comments[:amountI]
 	return c.JSON(amountComments)
 }
