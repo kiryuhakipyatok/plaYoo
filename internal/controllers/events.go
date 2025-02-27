@@ -4,14 +4,18 @@ import (
 	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
 	"strconv"
+
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
+
 	// "github.com/google/uuid"
 	"avantura/backend/internal/db/redis"
+	e "avantura/backend/pkg/error-patterns"
 	"encoding/json"
 	"log"
 	"time"
+
 	r "github.com/redis/go-redis/v9"
-	e "avantura/backend/pkg/error-patterns"
 )
 
 func AddEvent(c *fiber.Ctx) error{
@@ -20,6 +24,10 @@ func AddEvent(c *fiber.Ctx) error{
 		return e.BadRequest(c,err)
 	}
 	author_id:=c.Params("id")
+	//authorid,err:=uuid.Parse(author_id)
+	// if err != nil {
+	// 	return e.BadUUID(c,err)
+	// }
 	user:=models.User{}
 	if err:=postgres.Database.First(&user,"id=?",author_id).Error;err!=nil{
 		return e.NotFound("User",err,c)
@@ -28,7 +36,7 @@ func AddEvent(c *fiber.Ctx) error{
 	minute,_:=strconv.Atoi(iventdata["minute"])
 	members:=[]string{author_id}
 	event:=models.Event{
-		Id: author_id+"event"+iventdata["body"],
+		Id: author_id+"event",
 		AuthorId: author_id,
 		Body: iventdata["body"],
 		Game:iventdata["game"],
@@ -39,14 +47,44 @@ func AddEvent(c *fiber.Ctx) error{
 	if minute < 10 {
 		event.NotifiedPre = true
 	}
-	
-	if err:=postgres.Database.Create(&event).Error;err!=nil{
+	game:=models.Game{}
+	if err:=postgres.Database.Transaction(func(tx *gorm.DB) error {
+		if err:=tx.Create(&event).Error;err!=nil{
+			return err
+		}
+		eventData,err:=json.Marshal(&event)
+		if err!=nil{
+			return err
+		}
+		ttl:=time.Minute*time.Duration(minute)
+		if redis.Rdb!=nil{
+			if err:=redis.Rdb.Set(redis.Ctx,event.Id,eventData,ttl);err!=nil{
+				return err.Err()
+			}
+		}else{
+			log.Printf("Redis is not connected")
+		}
+		if err:=tx.First(&game,"name=?",iventdata["game"]).Error; err != nil {
+			return err
+		}
+		user.Events=append(user.Events, event.Id)
+		game.NumberOfEvents++
+		tx.Save(&user)
+		tx.Save(&game)
+		return nil
+	});err!=nil{
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"error": "Error creating ivent",
+			"error": "Error transaction of creating event",
 		})
 	}
-	game:=models.Game{}
+	// if err:=postgres.Database.Create(&event).Error;err!=nil{
+	// 	c.Status(fiber.StatusInternalServerError)
+	// 	return c.JSON(fiber.Map{
+	// 		"error": "Error creating ivent",
+	// 	})
+	// }
+	
 	if err := postgres.Database.First(&game,"name=?",iventdata["game"]).Error; err != nil {
         return e.NotFound("Game",err,c)
     }
