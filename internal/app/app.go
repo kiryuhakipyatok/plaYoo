@@ -6,10 +6,11 @@ import (
 	"avantura/backend/internal/notify"
 	"avantura/backend/internal/server"
 	"log"
-	"os/signal"
-	"os"
-	"syscall"
-	"time"
+	//"os/signal"
+	//"os"
+	//"syscall"
+	//"time"
+	"sync"
 )
 func Run() {
 	if err:=postgres.ConnectToPostgres();err!=nil{
@@ -40,17 +41,18 @@ func Run() {
 	// defer redis.Rdb.Close()
 	go notify.CreateBot()
 	// go notify.ScheduleNotify()
-	app:=server.RunServer()
-	quit:=make(chan os.Signal,1)
-	signal.Notify(quit,syscall.SIGINT,syscall.SIGTERM)
-	<-quit
-	log.Println("Shutting down server...")
-	time.Sleep(3*time.Second)
-	if err:=app.Shutdown();err!=nil{
-		log.Fatalf("Server forced to shutdown: %v", err)
-	}
-	log.Println("Server stopped")
-    // var wg sync.WaitGroup
-    // wg.Add(1)
-    // wg.Wait()
+	server.RunServer()
+	// quit:=make(chan os.Signal,1)
+	// signal.Notify(quit,syscall.SIGINT,syscall.SIGTERM)
+	// <-quit
+	// log.Println("Shutting down server...")
+	// time.Sleep(3*time.Second)
+	
+	// if err:=app.Shutdown();err!=nil{
+	// 	log.Fatalf("Server forced to shutdown: %v", err)
+	// }
+	// log.Println("Server stopped")
+    var wg sync.WaitGroup
+    wg.Add(1)
+    wg.Wait()
 }
