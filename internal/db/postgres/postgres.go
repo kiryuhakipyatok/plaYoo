@@ -21,11 +21,11 @@ func ConnectToPostgres() error{
     // }
 	
 	var (
-		database   = os.Getenv("DB_DATABASE_RLW")
-		password   = os.Getenv("DB_PASSWORD_RLW")
-		username   = os.Getenv("DB_USERNAME_RLW")
-		port       = os.Getenv("DB_PORT_RLW")
-		host       = os.Getenv("DB_HOST_RLW")
+		database   = os.Getenv("POSTGRES_DB")
+		password   = os.Getenv("POSTGRES_PASSWORD")
+		username   = os.Getenv("POSTGRES_USER")
+		port       = os.Getenv("PGPORT")
+		host       = os.Getenv("PGHOST")
 	)
 	if database == "" || username == "" || password == "" || host == "" || port == "" {
         log.Fatal("One or more environment variables are not set")
