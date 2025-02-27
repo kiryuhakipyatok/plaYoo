@@ -23,7 +23,7 @@ func CreateBot() {
 	log.Printf("Authorized on bot %s", Bot.Self.UserName)
 
 	go listenForUpdates()
-	// ScheduleNotify();
+	ScheduleNotify();
 }
 
 func listenForUpdates() {

@@ -39,7 +39,7 @@ func Run() {
 	}() 
 	defer redis.Rdb.Close()
 	go notify.CreateBot()
-	go notify.ScheduleNotify()
+	// go notify.ScheduleNotify()
 	app:=server.RunServer()
 	quit:=make(chan os.Signal,1)
 	signal.Notify(quit,syscall.SIGINT,syscall.SIGTERM)
