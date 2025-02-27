@@ -6,9 +6,13 @@ import (
 	"avantura/backend/pkg/constants"
 	e "avantura/backend/pkg/error-patterns"
 	"strconv"
-
+	"avantura/backend/internal/db/redis"
+	r "github.com/redis/go-redis/v9"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
+	"encoding/json"
+	"time"
+	"log"
 )
 
 func GetAllUsers(c *fiber.Ctx) error{
@@ -33,9 +37,29 @@ func GetAllUsers(c *fiber.Ctx) error{
 func GetConcreteUser(c *fiber.Ctx) error{
 	searchUserId:=c.Params("id")
 	user:=models.User{}
-	if err := postgres.Database.First(&user,"id=?",searchUserId).Error; err != nil {
-       return e.NotFound("User",err,c)
-    }	
+	data,err:=redis.Rdb.Get(redis.Ctx,searchUserId).Result()
+	if err!=nil{
+		if err==r.Nil{
+			if err := postgres.Database.First(&user,"id=?",searchUserId).Error; err != nil {
+				return e.NotFound("User",err,c)
+			}
+			userData, _ := json.Marshal(user)
+			ttl:=time.Hour*24
+            redis.Rdb.Set(redis.Ctx, searchUserId, userData, ttl)
+		}else{
+			if err := postgres.Database.First(&user,"id=?",searchUserId).Error; err != nil {
+				return e.NotFound("User",err,c)
+			}
+			log.Printf("Error getting user from Redis, getting user from Postgre")
+		}
+	}else{
+		if err:=json.Unmarshal([]byte(data),&user);err!=nil{
+			c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{
+				"error": "Failed unmarshal",
+			})
+		}
+	}
 	return c.JSON(user)
 }
 
