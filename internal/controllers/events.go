@@ -4,9 +4,13 @@ import (
 	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
 	"strconv"
-	"time"
 	"github.com/gofiber/fiber/v2"
 	// "github.com/google/uuid"
+	"avantura/backend/internal/db/redis"
+	"encoding/json"
+	"log"
+	"time"
+	r "github.com/redis/go-redis/v9"
 	e "avantura/backend/pkg/error-patterns"
 )
 
@@ -35,6 +39,7 @@ func AddEvent(c *fiber.Ctx) error{
 	if minute < 10 {
 		event.NotifiedPre = true
 	}
+	
 	if err:=postgres.Database.Create(&event).Error;err!=nil{
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -53,13 +58,32 @@ func AddEvent(c *fiber.Ctx) error{
 }
 
 func GetConcreteEvent(c *fiber.Ctx) error{
-	userId:=c.Params("id")
-	user:=models.User{}
-	// userIdUUID,_:=uuid.Parse(userId)
-	if err:=postgres.Database.First(&user,"id=?",userId).Error;err!=nil{
-		return e.NotFound("User",err,c)
+	eventId:=c.Params("id")
+	event:=models.Event{}
+	data,err:=redis.Rdb.Get(redis.Ctx,eventId).Result()
+	if err!=nil{
+		if err==r.Nil{
+			eventData, _ := json.Marshal(data)
+			ttl := time.Until(event.Time)
+            redis.Rdb.Set(redis.Ctx, eventId, eventData, ttl)
+			if err:=postgres.Database.First(&event,"id=?",eventId).Error;err!=nil{
+				return e.NotFound("User",err,c)
+			}
+		}else{
+			if err:=postgres.Database.First(&event,"id=?",eventId).Error;err!=nil{
+				return e.NotFound("Event",err,c)
+			}
+			log.Printf("Error getting event from Redis, getting event from Postgre")
+		}
+	}else{
+		if err:=json.Unmarshal([]byte(data),&event);err!=nil{
+			c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{
+				"error": "Failed unmarshal",
+			})
+		}
 	}
-	return c.JSON(user.Events)
+	return c.JSON(event)
 }
 
 func GetEvents(c *fiber.Ctx) error{
