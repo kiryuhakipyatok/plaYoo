@@ -1,9 +1,12 @@
 package redis
 
 import (
-	"github.com/redis/go-redis/v9"
-	"log"
 	"context"
+	"log"
+	"os"
+	"strconv"
+	"fmt"
+	"github.com/redis/go-redis/v9"
 )
 
 var (
@@ -12,10 +15,25 @@ var (
 )
 
 func ConnectToRedis() error{
+
+	var (
+		host = os.Getenv("REDISHOST")
+		port = os.Getenv("REDISPORT")
+		password = os.Getenv("REDISPASSWORD")
+		db = os.Getenv("REDIS_RUN_UID")
+	)
+
+	// client := redis.NewClient(&redis.Options{
+    //     Addr:     "localhost:6379",
+    //     Password: "",               
+    //     DB:       0,              
+    // })
+	addr:=fmt.Sprintf("%s:%s",host,port)
+	dbn,_:=strconv.Atoi(db)
 	client := redis.NewClient(&redis.Options{
-        Addr:     "localhost:6379",
-        Password: "",               
-        DB:       0,              
+        Addr:     addr,
+        Password: password,               
+        DB:       dbn,              
     })
 	// defer client.Close()
 	Rdb = client
