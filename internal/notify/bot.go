@@ -3,7 +3,7 @@ package notify
 import (
 	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
-	"avantura/backend/pkg/constants"
+	"avantura/backend/storage/constants"
 	"log"
 	//"os"
 	//"os/signal"

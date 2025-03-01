@@ -5,7 +5,7 @@ import (
 	"avantura/backend/internal/models"
 	"math"
 	"github.com/gofiber/fiber/v2"
-	e "avantura/backend/pkg/error-patterns"
+	e "avantura/backend/storage/error-patterns"
 )
 
 func EditRating(c *fiber.Ctx) error{

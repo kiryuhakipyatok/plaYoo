@@ -3,8 +3,8 @@ package controllers
 import (
 	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
-	"avantura/backend/pkg/constants"
-	e "avantura/backend/pkg/error-patterns"
+	"avantura/backend/storage/constants"
+	e "avantura/backend/storage/error-patterns"
 	"strconv"
 	"avantura/backend/internal/db/redis"
 	r "github.com/redis/go-redis/v9"

@@ -3,7 +3,7 @@ package controllers
 import (
 	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
-	e "avantura/backend/pkg/error-patterns"
+	e "avantura/backend/storage/error-patterns"
 	"strconv"
 	"time"
 	"github.com/gofiber/fiber/v2"

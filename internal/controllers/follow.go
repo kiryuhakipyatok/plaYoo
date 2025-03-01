@@ -4,7 +4,7 @@ import (
 	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
 	"github.com/gofiber/fiber/v2"
-	e "avantura/backend/pkg/error-patterns"
+	e "avantura/backend/storage/error-patterns"
 )
 
 func Follow(c *fiber.Ctx) error{

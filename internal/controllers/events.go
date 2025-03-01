@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"avantura/backend/internal/db/redis"
-	e "avantura/backend/pkg/error-patterns"
+	e "avantura/backend/storage/error-patterns"
 	"encoding/json"
 	"log"
 	"time"

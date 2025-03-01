@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"github.com/dgrijalva/jwt-go"
-	"avantura/backend/pkg/constants"
-	e "avantura/backend/pkg/error-patterns"
+	"avantura/backend/storage/constants"
+	e "avantura/backend/storage/error-patterns"
 )
 
 func Register(c *fiber.Ctx) error{

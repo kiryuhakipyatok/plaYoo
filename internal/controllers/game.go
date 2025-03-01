@@ -5,7 +5,7 @@ import (
 	"avantura/backend/internal/models"
 	"github.com/gofiber/fiber/v2"
 	// "github.com/google/uuid"
-	e "avantura/backend/pkg/error-patterns"
+	e "avantura/backend/storage/error-patterns"
 )
 
 func AddGameToTable(c *fiber.Ctx) error{

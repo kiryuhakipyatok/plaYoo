@@ -8,7 +8,7 @@ import(
 	"os"
 	"fmt"
 	"path/filepath"
-	e "avantura/backend/pkg/error-patterns"
+	e "avantura/backend/storage/error-patterns"
 )
 
 func UploadAvatar(c *fiber.Ctx) error{
