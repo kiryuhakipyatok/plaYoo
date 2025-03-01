@@ -3,13 +3,13 @@ package notify
 import (
 	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
-	"avantura/backend/storage/constants"
 	"log"
+	"os"
+
 	//"os"
 	//"os/signal"
 	"sync"
 	//"syscall"
-
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -19,8 +19,9 @@ var (
 )
 
 func CreateBot(stop chan struct{}) {
+	var tbt = os.Getenv("TG_BOT_TOKEN")
 	var err error
-	Bot, err = tgbotapi.NewBotAPI(constants.TelegramBotToken)
+	Bot, err = tgbotapi.NewBotAPI(tbt)
 	if err != nil {
 		log.Printf("Error creating bot: %v", err)
 	}

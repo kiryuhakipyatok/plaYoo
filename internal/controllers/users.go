@@ -3,7 +3,6 @@ package controllers
 import (
 	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
-	"avantura/backend/storage/constants"
 	e "avantura/backend/storage/error-patterns"
 	"strconv"
 	"avantura/backend/internal/db/redis"
@@ -12,6 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"encoding/json"
 	"time"
+	"os"
 	"log"
 )
 
@@ -64,9 +64,10 @@ func GetConcreteUser(c *fiber.Ctx) error{
 }
 
 func User(c *fiber.Ctx) error{
+	var secret = os.Getenv("SECRET")
 	cookie:=c.Cookies("jwt")
 	token,err:=jwt.ParseWithClaims(cookie,&jwt.StandardClaims{},func(t *jwt.Token) (interface{},error){
-		return []byte(constants.Secret),nil
+		return []byte(secret),nil
 	})
 	
 	if err!=nil{

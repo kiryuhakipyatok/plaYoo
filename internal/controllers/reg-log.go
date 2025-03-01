@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"github.com/dgrijalva/jwt-go"
-	"avantura/backend/storage/constants"
 	e "avantura/backend/storage/error-patterns"
+	"os"
 )
 
 func Register(c *fiber.Ctx) error{
@@ -71,8 +71,8 @@ func Login(c *fiber.Ctx) error{
 		Issuer: user.Id.String(),
 		ExpiresAt: time.Now().Add(time.Hour*24).Unix(),
 	})
-
-	token,err:=claims.SignedString([]byte(constants.Secret))
+	var secret = os.Getenv("SECRET")
+	token,err:=claims.SignedString([]byte(secret))
 	if err!=nil{
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
