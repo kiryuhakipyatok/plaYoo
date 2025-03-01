@@ -2,10 +2,10 @@ package server
 
 import (
 	"avantura/backend/internal/routes"
-	"log"
+	//"log"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"os"
+	//"os"
 )
 func RunServer() *fiber.App{
     app:=fiber.New()    
@@ -19,10 +19,6 @@ func RunServer() *fiber.App{
     }))    
 	routes.Setup(app)
 	//host:=os.Getenv("HOST")
-	port:=os.Getenv("PORT")
-	if port == ""{
-		port = "3000"
-	}
-    log.Fatal(app.Listen("0.0.0.0:"+port))     
+	
 	return app
 }

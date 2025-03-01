@@ -24,20 +24,9 @@ func CreateBot(stop chan struct{}) {
 	if err != nil {
 		log.Printf("Error creating bot: %v", err)
 	}
+
 	log.Printf("Authorized on bot %s", Bot.Self.UserName)
-	updateConfig := tgbotapi.NewUpdate(0)
-	updateConfig.Timeout = 60
-	updates := Bot.GetUpdatesChan(updateConfig)
-	for {
-		select{
-		case <-stop:
-			return
-		case update:=<-updates:
-			if update.Message != nil {
-				handleMessage(update)
-			}
-		}
-	}
+	listenForUpdates(stop)
 	// var wg sync.WaitGroup
 	// c:=make(chan struct{})
 	// wg.Add(1)
@@ -52,30 +41,23 @@ func CreateBot(stop chan struct{}) {
 	// wg.Wait()
 }
 
-// func listenForUpdates() {
-// 	updateConfig := tgbotapi.NewUpdate(0)
-// 	updateConfig.Timeout = 60
-// 	updates := Bot.GetUpdatesChan(updateConfig)
-// 	for update := range updates {
-// 		if update.Message != nil {
-// 			handleMessage(update)
-// 		}
-// 	}
-// 	// for{
-// 	// 	select{
-// 	// 		case <-c:
-// 	// 			log.Println("Stopping listenForUpdates")
-// 	// 			return
-// 	// 		default:
-// 	// 			for update := range updates {
-// 	// 				if update.Message != nil {
-// 	// 					handleMessage(update)
-// 	// 				}
-// 	// 			}
-// 	// 	}
-// 	// }
+func listenForUpdates(stop chan struct{}) {
+	updateConfig := tgbotapi.NewUpdate(0)
+	updateConfig.Timeout = 60
+	updates := Bot.GetUpdatesChan(updateConfig)
+	for {
+		select{
+		case <-stop:
+			log.Println("Stopping Bot...")
+			return
+		case update:=<-updates:
+			if update.Message != nil {
+				handleMessage(update)
+			}
+		}
+	}
 
-// }
+}
 
 func handleMessage(update tgbotapi.Update) {
 	username := update.Message.From.UserName

@@ -6,11 +6,12 @@ import (
 	"avantura/backend/internal/notify"
 	"avantura/backend/internal/server"
 	"log"
-	"os"
 	"os/signal"
-	"sync"
+	"os"
 	"syscall"
 	"time"
+	"sync"
+	"context"
 )
 func Run() {
 	var wg sync.WaitGroup
@@ -39,26 +40,34 @@ func Run() {
 			}
 		}
 	}() 
+	quit:=make(chan os.Signal,1)
+	signal.Notify(quit,syscall.SIGINT,syscall.SIGTERM)
 	stop:=make(chan struct{})
-	wg.Add(1)
+	wg.Add(3)
+	app:=server.RunServer()
+	port:=os.Getenv("PORT")
+	if port == ""{
+		port = "3000"
+	}
+	go func(){ 
+		if err := app.Listen("0.0.0.0:" + port); err != nil {
+            log.Printf("Server error: %v", err)
+        }
+		defer wg.Done() 
+	}()
 	go func(){
 		notify.CreateBot(stop)
 		defer wg.Done()
 	}()
-	wg.Add(1)
 	go func ()  {
 		notify.ScheduleNotify(stop)
 		defer wg.Done()
 	}()
-
-	app:=server.RunServer()
-	
-	quit:=make(chan os.Signal,1)
-	signal.Notify(quit,syscall.SIGINT,syscall.SIGTERM)
 	<-quit
-	log.Println("Shutting down server...")
-	time.Sleep(3*time.Second)
-	if err:=app.Shutdown();err!=nil{
+	log.Println("Shutting down server")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+    defer cancel()
+	if err:=app.ShutdownWithContext(ctx);err!=nil{
 		log.Fatalf("Server forced to shutdown: %v", err)
 	}
 	close(stop)

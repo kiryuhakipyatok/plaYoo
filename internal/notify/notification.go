@@ -123,5 +123,6 @@ func ScheduleNotify(stop chan struct{}) {
     })
     c.Start()
 	<-stop
+	log.Println("Stopping ScheduleNotify")
 	c.Stop()
 }
