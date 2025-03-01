@@ -48,7 +48,7 @@ func listenForUpdates(stop chan struct{}) {
 	for {
 		select{
 		case <-stop:
-			log.Println("Stopping Bot...")
+			log.Println("Stopping Bot")
 			return
 		case update:=<-updates:
 			if update.Message != nil {
