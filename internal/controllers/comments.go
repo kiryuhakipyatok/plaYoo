@@ -8,6 +8,7 @@ import (
 	"time"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/google/uuid"
 )
 
 func AddComment(c *fiber.Ctx) error{
@@ -26,7 +27,14 @@ func AddComment(c *fiber.Ctx) error{
 		return e.BadUUID(c,err)
 	}
 	var tempId uuid.UUID
+	authorIdUUID,err:=uuid.Parse(authorId)
+	if err != nil {
+		return e.BadUUID(c,err)
+	}
+	var tempId uuid.UUID
 	comment:=models.Comment{
+		Id:uuid.New(),
+		AuthorId: authorIdUUID,
 		Id:uuid.New(),
 		AuthorId: authorIdUUID,
 		AuthorName: author.Login,
@@ -36,6 +44,11 @@ func AddComment(c *fiber.Ctx) error{
 		Receiver: tempId,
 	} 
 	if userId,ok:=commentdata["user_id"];ok && userId!=""{
+		id,err:=uuid.Parse(userId)
+		if err != nil {
+			return e.BadUUID(c,err)
+		}
+		comment.Receiver = id
 		id,err:=uuid.Parse(userId)
 		if err != nil {
 			return e.BadUUID(c,err)
@@ -75,11 +88,7 @@ func AddComment(c *fiber.Ctx) error{
 		news.Comments = append(news.Comments, comment.Id.String())
 		postgres.Database.Save(&news)
 	}else{
-		// return e.NotFound("Receiver",err,c)
-		c.Status(fiber.StatusNotFound)
-		return c.JSON(fiber.Map{
-			"error": "Receiver not found",
-		})
+		return e.NotFound("Receiver",err,c)
 	}
 	
 	

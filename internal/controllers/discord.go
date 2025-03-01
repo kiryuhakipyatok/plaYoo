@@ -4,7 +4,6 @@ import (
 	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	e "avantura/backend/pkg/error-patterns"
 )
 
