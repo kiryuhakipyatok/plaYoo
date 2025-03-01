@@ -22,6 +22,10 @@ tmp/
 .vscode
 .idea
 
+storage/constants
+storage/news_picture
+storage/avatars
+
 # .env file
 .env
 
