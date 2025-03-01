@@ -7,13 +7,13 @@ import (
 	"strconv"
 	"time"
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	// "github.com/google/uuid"
+	"github.com/google/uuid"
 	"github.com/robfig/cron/v3"
 )
 
 func CreateNotice(event models.Event,msg string) models.Notice{
 	notice:=models.Notice{
-		Id:"notice"+event.Id,
+		Id:uuid.New(),
 		EventId: event.Id,
 		Body: msg,
 	}
@@ -30,7 +30,7 @@ func sendStartNotification(event models.Event,message string){
 			log.Printf("User not found: %s", user.Id)
 		}
 		notice:=CreateNotice(event,message)
-		user.Notifications = append(user.Notifications, notice.Id)
+		user.Notifications = append(user.Notifications, notice.Id.String())
 		postgres.Database.Save(&user)
 		if user.ChatId!=""{
 			chatID, _ := strconv.ParseInt(user.ChatId, 10, 64)
@@ -52,7 +52,7 @@ func sendPreNotification(event models.Event,message string){
 			log.Printf("User not found: %s", user.Id)
 		}
 		notice:=CreateNotice(event,message)
-		user.Notifications = append(user.Notifications, notice.Id)
+		user.Notifications = append(user.Notifications, notice.Id.String())
 		postgres.Database.Save(&user)
 		log.Printf("Notification save to user %s", user.Tg)
 		if user.ChatId!=""{
@@ -112,7 +112,7 @@ func ScheduleNotify() {
 					}
 					updateEvents:=make([]string,0,len(user.Events))
 					for _, e := range user.Events {
-						if e != event.Id {
+						if e != event.Id.String() {
 							updateEvents = append(updateEvents, e)
 						}
 					}

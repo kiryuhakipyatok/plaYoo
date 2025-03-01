@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 
-	// "github.com/google/uuid"
+	"github.com/google/uuid"
 	"avantura/backend/internal/db/redis"
 	e "avantura/backend/pkg/error-patterns"
 	"encoding/json"
@@ -24,10 +24,10 @@ func AddEvent(c *fiber.Ctx) error{
 		return e.BadRequest(c,err)
 	}
 	author_id:=c.Params("id")
-	//authorid,err:=uuid.Parse(author_id)
-	// if err != nil {
-	// 	return e.BadUUID(c,err)
-	// }
+	authorid,err:=uuid.Parse(author_id)
+	if err != nil {
+		return e.BadUUID(c,err)
+	}
 	user:=models.User{}
 	if err:=postgres.Database.First(&user,"id=?",author_id).Error;err!=nil{
 		return e.NotFound("User",err,c)
@@ -36,8 +36,8 @@ func AddEvent(c *fiber.Ctx) error{
 	minute,_:=strconv.Atoi(iventdata["minute"])
 	members:=[]string{author_id}
 	event:=models.Event{
-		Id: author_id+"event",
-		AuthorId: author_id,
+		Id:	uuid.New(),
+		AuthorId: authorid,
 		Body: iventdata["body"],
 		Game:iventdata["game"],
 		Max: max,
@@ -58,7 +58,7 @@ func AddEvent(c *fiber.Ctx) error{
 		}
 		ttl:=time.Minute*time.Duration(minute)
 		if redis.Rdb!=nil{
-			if err:=redis.Rdb.Set(redis.Ctx,event.Id,eventData,ttl).Err();err!=nil{
+			if err:=redis.Rdb.Set(redis.Ctx,event.Id.String(),eventData,ttl).Err();err!=nil{
 				return err
 			}
 		}else{
@@ -67,7 +67,7 @@ func AddEvent(c *fiber.Ctx) error{
 		if err:=tx.First(&game,"name=?",iventdata["game"]).Error; err != nil {
 			return err
 		}
-		user.Events=append(user.Events, event.Id)
+		user.Events=append(user.Events, event.Id.String())
 		game.NumberOfEvents++
 		tx.Save(&user)
 		tx.Save(&game)
@@ -88,7 +88,7 @@ func AddEvent(c *fiber.Ctx) error{
 	if err := postgres.Database.First(&game,"name=?",iventdata["game"]).Error; err != nil {
         return e.NotFound("Game",err,c)
     }
-	user.Events=append(user.Events, event.Id)
+	user.Events=append(user.Events, event.Id.String())
 	game.NumberOfEvents++
 	postgres.Database.Save(&user)
 	postgres.Database.Save(&game)

@@ -5,7 +5,7 @@ import (
 	"avantura/backend/internal/models"
 	"time"
 	"github.com/gofiber/fiber/v2"
-	// "github.com/google/uuid"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"github.com/dgrijalva/jwt-go"
 	"avantura/backend/pkg/constants"
@@ -25,7 +25,7 @@ func Register(c *fiber.Ctx) error{
 		})
 	}
 	user:=models.User{
-		Id:userdata["login"]+"id",
+		Id:uuid.New(),
 		Login: userdata["login"],
 		Tg: userdata["tg"],
 		Password: password,
@@ -68,7 +68,7 @@ func Login(c *fiber.Ctx) error{
 	}
 
 	claims:=jwt.NewWithClaims(jwt.SigningMethodHS256,jwt.StandardClaims{
-		Issuer: user.Id,
+		Issuer: user.Id.String(),
 		ExpiresAt: time.Now().Add(time.Hour*24).Unix(),
 	})
 

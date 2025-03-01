@@ -1,14 +1,14 @@
 package models
 
 import(
-	// "github.com/google/uuid"
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"time"
 ) 
 
 type Event struct{
-	Id 			  string 			`json:"event_id"`
-	AuthorId 	  string 			`gorm:"not null" json:"author_id"`
+	Id 			  uuid.UUID 		`gorm:"type:uuid;default:uuid_generate_v4();primary_key" json:"event_id"`
+	AuthorId 	  uuid.UUID 			`gorm:"type:uuid;not null" json:"author_id"`
 	Body 		  string 			`json:"body" gorm:"not null"`
 	Game 		  string 			`json:"game" gorm:"not null"`
 	Members  	  pq.StringArray 	`gorm:"type:text[]" json:"members"`

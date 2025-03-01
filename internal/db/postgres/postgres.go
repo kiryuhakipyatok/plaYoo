@@ -6,7 +6,7 @@ import (
 
 	"log"
 
-	// "github.com/joho/godotenv"
+	"github.com/joho/godotenv"
 	"os"
 
 	"gorm.io/driver/postgres"
@@ -16,9 +16,9 @@ import (
 var Database *gorm.DB
 
 func ConnectToPostgres() error{
-	// if err := godotenv.Load();err != nil {
-    //     log.Fatal("Error loading .env file"+ err.Error())
-    // }
+	if err := godotenv.Load();err != nil {
+        log.Fatal("Error loading .env file"+ err.Error())
+    }
 	
 	var (
 		database   = os.Getenv("POSTGRES_DB")

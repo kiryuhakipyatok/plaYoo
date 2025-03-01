@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 	"github.com/gofiber/fiber/v2"
-	// "github.com/google/uuid"
+	"github.com/google/uuid"
 )
 
 func AddComment(c *fiber.Ctx) error{
@@ -21,14 +21,14 @@ func AddComment(c *fiber.Ctx) error{
 	if err:=postgres.Database.First(&author,"id=?",authorId).Error;err!=nil{
 		return e.NotFound("Author",err,c)
 	}
-	// authorIdUUID,err:=uuid.Parse(authorId)
-	// if err != nil {
-	// 	return e.BadUUID(c,err)
-	// }
-	var tempId string
+	authorIdUUID,err:=uuid.Parse(authorId)
+	if err != nil {
+		return e.BadUUID(c,err)
+	}
+	var tempId uuid.UUID
 	comment:=models.Comment{
-		Id:authorId+"comment"+tempId,
-		AuthorId: authorId,
+		Id:uuid.New(),
+		AuthorId: authorIdUUID,
 		AuthorName: author.Login,
 		AuthorAvatar: author.Avatar,
 		Body: commentdata["body"],
@@ -36,37 +36,43 @@ func AddComment(c *fiber.Ctx) error{
 		Receiver: tempId,
 	} 
 	if userId,ok:=commentdata["user_id"];ok && userId!=""{
-		// id,err:=uuid.Parse(userId)
-		// if err != nil {
-		// 	return e.BadUUID(c,err)
-		// }
-		comment.Receiver = userId
+		id,err:=uuid.Parse(userId)
+		if err != nil {
+			return e.BadUUID(c,err)
+		}
+		comment.Receiver = id
 		user:=models.User{}
 		if err:=postgres.Database.First(&user,"id=?",userId).Error;err!=nil{
 			return e.NotFound("User",err,c)
 		}
 
-		user.Comments = append(user.Comments, comment.Id)
+		user.Comments = append(user.Comments, comment.Id.String())
 		postgres.Database.Save(&user)
 	}else if eventId,ok:=commentdata["event_id"];ok && eventId!=""{
-		// id,_:=uuid.Parse(eventId)
-		comment.Receiver = eventId
+		id,_:=uuid.Parse(eventId)
+		if err != nil {
+			return e.BadUUID(c,err)
+		}
+		comment.Receiver = id
 		event:=models.Event{}
 		if err:=postgres.Database.First(&event,"id=?",eventId).Error;err!=nil{
 			return e.NotFound("Event",err,c)
 		}
 
-		event.Comments = append(event.Comments, comment.Id)
+		event.Comments = append(event.Comments, comment.Id.String())
 		postgres.Database.Save(&event)
 	}else if newsId,ok:=commentdata["news_id"];ok && newsId!=""{
-		// id,_:=uuid.Parse(newsId)
-		comment.Receiver = newsId
+		id,_:=uuid.Parse(newsId)
+		if err != nil {
+			return e.BadUUID(c,err)
+		}
+		comment.Receiver = id
 		news:=models.News{}
 		if err:=postgres.Database.First(&news,"id=?",newsId).Error;err!=nil{
 			return e.NotFound("News",err,c)
 		}
 
-		news.Comments = append(news.Comments, comment.Id)
+		news.Comments = append(news.Comments, comment.Id.String())
 		postgres.Database.Save(&news)
 	}else{
 		// return e.NotFound("Receiver",err,c)
