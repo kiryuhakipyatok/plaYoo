@@ -8,13 +8,11 @@ import (
 	"time"
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/google/uuid"
-	"github.com/google/uuid"
 	"github.com/robfig/cron/v3"
 )
 
 func CreateNotice(event models.Event,msg string) models.Notice{
 	notice:=models.Notice{
-		Id:uuid.New(),
 		Id:uuid.New(),
 		EventId: event.Id,
 		Body: msg,
@@ -69,7 +67,7 @@ func sendPreNotification(event models.Event,message string){
 	}
 }
 
-func ScheduleNotify() {
+func ScheduleNotify(stop chan struct{}) {
     c := cron.New()
     c.AddFunc("@every 1m", func() {
         now := time.Now()
@@ -115,7 +113,6 @@ func ScheduleNotify() {
 					updateEvents:=make([]string,0,len(user.Events))
 					for _, e := range user.Events {
 						if e != event.Id.String() {
-						if e != event.Id.String() {
 							updateEvents = append(updateEvents, e)
 						}
 					}
@@ -125,4 +122,6 @@ func ScheduleNotify() {
         }
     })
     c.Start()
+	<-stop
+	c.Stop()
 }

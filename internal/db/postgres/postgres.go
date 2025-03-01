@@ -31,7 +31,6 @@ func ConnectToPostgres() error{
         log.Fatal("One or more environment variables are not set")
     }
 	dsn:=fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Europe/Minsk",host,username,password,database,port)
-	//dsn:="host=junction.proxy.rlwy.net user=postgres password=ZFvBKMDypzRLBbFqMHMOiRCmFvMPPLCv dbname=railway port=43543 sslmode=disable TimeZone=Europe/Minsk"
 	connection,err:= gorm.Open(postgres.Open(dsn),&gorm.Config{})
 	if err!=nil{
 		return err

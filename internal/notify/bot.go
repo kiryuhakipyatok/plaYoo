@@ -3,10 +3,14 @@ package notify
 import (
 	"avantura/backend/internal/db/postgres"
 	"avantura/backend/internal/models"
-	"log"
-	"sync"
-	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"avantura/backend/pkg/constants"
+	"log"
+	//"os"
+	//"os/signal"
+	"sync"
+	//"syscall"
+
+	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 var (
@@ -14,29 +18,64 @@ var (
 	Bot *tgbotapi.BotAPI
 )
 
-func CreateBot() {
+func CreateBot(stop chan struct{}) {
 	var err error
 	Bot, err = tgbotapi.NewBotAPI(constants.TelegramBotToken)
 	if err != nil {
 		log.Printf("Error creating bot: %v", err)
 	}
 	log.Printf("Authorized on bot %s", Bot.Self.UserName)
-
-	go listenForUpdates()
-	ScheduleNotify();
-}
-
-func listenForUpdates() {
 	updateConfig := tgbotapi.NewUpdate(0)
 	updateConfig.Timeout = 60
 	updates := Bot.GetUpdatesChan(updateConfig)
-
-	for update := range updates {
-		if update.Message != nil {
-			handleMessage(update)
+	for {
+		select{
+		case <-stop:
+			return
+		case update:=<-updates:
+			if update.Message != nil {
+				handleMessage(update)
+			}
 		}
 	}
+	// var wg sync.WaitGroup
+	// c:=make(chan struct{})
+	// wg.Add(1)
+	// go func ()  {
+	// go	listenForUpdates()
+	// 	defer wg.Done()
+	// }()
+	// quit:=make(chan os.Signal,1)
+	// signal.Notify(quit,syscall.SIGINT,syscall.SIGTERM)
+	// <-quit
+	// close(c)
+	// wg.Wait()
 }
+
+// func listenForUpdates() {
+// 	updateConfig := tgbotapi.NewUpdate(0)
+// 	updateConfig.Timeout = 60
+// 	updates := Bot.GetUpdatesChan(updateConfig)
+// 	for update := range updates {
+// 		if update.Message != nil {
+// 			handleMessage(update)
+// 		}
+// 	}
+// 	// for{
+// 	// 	select{
+// 	// 		case <-c:
+// 	// 			log.Println("Stopping listenForUpdates")
+// 	// 			return
+// 	// 		default:
+// 	// 			for update := range updates {
+// 	// 				if update.Message != nil {
+// 	// 					handleMessage(update)
+// 	// 				}
+// 	// 			}
+// 	// 	}
+// 	// }
+
+// }
 
 func handleMessage(update tgbotapi.Update) {
 	username := update.Message.From.UserName

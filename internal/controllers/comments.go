@@ -8,7 +8,6 @@ import (
 	"time"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/google/uuid"
 )
 
 func AddComment(c *fiber.Ctx) error{
@@ -27,14 +26,7 @@ func AddComment(c *fiber.Ctx) error{
 		return e.BadUUID(c,err)
 	}
 	var tempId uuid.UUID
-	authorIdUUID,err:=uuid.Parse(authorId)
-	if err != nil {
-		return e.BadUUID(c,err)
-	}
-	var tempId uuid.UUID
 	comment:=models.Comment{
-		Id:uuid.New(),
-		AuthorId: authorIdUUID,
 		Id:uuid.New(),
 		AuthorId: authorIdUUID,
 		AuthorName: author.Login,
@@ -49,11 +41,6 @@ func AddComment(c *fiber.Ctx) error{
 			return e.BadUUID(c,err)
 		}
 		comment.Receiver = id
-		id,err:=uuid.Parse(userId)
-		if err != nil {
-			return e.BadUUID(c,err)
-		}
-		comment.Receiver = id
 		user:=models.User{}
 		if err:=postgres.Database.First(&user,"id=?",userId).Error;err!=nil{
 			return e.NotFound("User",err,c)
@@ -62,7 +49,7 @@ func AddComment(c *fiber.Ctx) error{
 		user.Comments = append(user.Comments, comment.Id.String())
 		postgres.Database.Save(&user)
 	}else if eventId,ok:=commentdata["event_id"];ok && eventId!=""{
-		id,_:=uuid.Parse(eventId)
+		id,err:=uuid.Parse(eventId)
 		if err != nil {
 			return e.BadUUID(c,err)
 		}
@@ -75,7 +62,7 @@ func AddComment(c *fiber.Ctx) error{
 		event.Comments = append(event.Comments, comment.Id.String())
 		postgres.Database.Save(&event)
 	}else if newsId,ok:=commentdata["news_id"];ok && newsId!=""{
-		id,_:=uuid.Parse(newsId)
+		id,err:=uuid.Parse(newsId)
 		if err != nil {
 			return e.BadUUID(c,err)
 		}

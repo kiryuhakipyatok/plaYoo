@@ -17,6 +17,5 @@ type News struct {
 	Time          time.Time      `json:"time" gorm:"not null"`
 	Link          string         `gorm:"type:text" json:"link"`
 	Comments      pq.StringArray `gorm:"type:uuid[]" json:"comments"`
-	Comments      pq.StringArray `gorm:"type:uuid[]" json:"comments"`
 	Picture       string         `json:"picture"`
 }

@@ -6,13 +6,14 @@ import (
 	"avantura/backend/internal/notify"
 	"avantura/backend/internal/server"
 	"log"
-	//"os/signal"
-	//"os"
-	//"syscall"
-	//"time"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
+	"time"
 )
 func Run() {
+	var wg sync.WaitGroup
 	if err:=postgres.ConnectToPostgres();err!=nil{
 		log.Fatalf("Error to connenct to Postgres: %v",err)
 	}
@@ -38,21 +39,29 @@ func Run() {
 			}
 		}
 	}() 
-	// defer redis.Rdb.Close()
-	go notify.CreateBot()
-	// go notify.ScheduleNotify()
-	server.RunServer()
-	// quit:=make(chan os.Signal,1)
-	// signal.Notify(quit,syscall.SIGINT,syscall.SIGTERM)
-	// <-quit
-	// log.Println("Shutting down server...")
-	// time.Sleep(3*time.Second)
+	stop:=make(chan struct{})
+	wg.Add(1)
+	go func(){
+		notify.CreateBot(stop)
+		defer wg.Done()
+	}()
+	wg.Add(1)
+	go func ()  {
+		notify.ScheduleNotify(stop)
+		defer wg.Done()
+	}()
+
+	app:=server.RunServer()
 	
-	// if err:=app.Shutdown();err!=nil{
-	// 	log.Fatalf("Server forced to shutdown: %v", err)
-	// }
-	// log.Println("Server stopped")
-    var wg sync.WaitGroup
-    wg.Add(1)
-    wg.Wait()
+	quit:=make(chan os.Signal,1)
+	signal.Notify(quit,syscall.SIGINT,syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting down server...")
+	time.Sleep(3*time.Second)
+	if err:=app.Shutdown();err!=nil{
+		log.Fatalf("Server forced to shutdown: %v", err)
+	}
+	close(stop)
+	wg.Wait()
+	log.Println("Server stopped")
 }

@@ -29,10 +29,6 @@ func AddEvent(c *fiber.Ctx) error {
 	if err != nil {
 		return e.BadUUID(c, err)
 	}
-	authorid, err := uuid.Parse(author_id)
-	if err != nil {
-		return e.BadUUID(c, err)
-	}
 	user := models.User{}
 	if err := postgres.Database.First(&user, "id=?", author_id).Error; err != nil {
 		return e.NotFound("User", err, c)
